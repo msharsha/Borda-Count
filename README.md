@@ -21,3 +21,14 @@ To update pip (First time only, skip this step if you're not setting up the appl
 To install necessary packages for the applications use:
 > pip install -r requirements.txt
 Note: `requirements.txt` has the required packages for this application. Do `pip freeze > requirements.txt` to add newly installed packages.
+
+To run migrations:
+> python manage.py migrate
+Note: Migrations are to be run for the first time and only when there's a change in models.py
+
+To run the server:
+> python manage.py runserver
+Visit http://127.0.0.1:8000/ to see the Application running.
+
+## Code Structure
+
