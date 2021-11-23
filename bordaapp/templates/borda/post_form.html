@@ -1,5 +1,7 @@
 {% extends "borda/base.html" %}
+
 {% load crispy_forms_tags %}
+
 {% block content %}
 <div class="content-section">
     <form method="POST">
@@ -13,6 +15,7 @@
         </div>
     </form>
 </div>
+
 <!-- Medium Editor -->
 <script>var editor = new MediumEditor('.editable');</script>
 {% endblock content %}
