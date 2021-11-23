@@ -1,13 +1,21 @@
 from django.urls import path
-
 from . import views
+from .views import (
+    PostListView,
+    PostDetailView,
+    # PostCreateView,
+    PostUpdateView,
+    PostDeleteView,
+    UserPostListView,
+)
 
-app_name = 'bordaapp'
+
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('<int:question_id>/', views.detail, name='detail'),
-    # ex: /polls/5/results/
-    path('<int:question_id>/results/', views.results, name='results'),
-    # ex: /polls/5/vote/
-    path('<int:question_id>/vote/', views.vote, name='vote'),
+    path('', PostListView.as_view(), name='index'),
+    path('user/<str:username>/', UserPostListView.as_view(), name='user_posts'),
+    path('post/<int:pk>/', PostDetailView, name='post_detail'),
+    # path('post/new/', PostCreateView.as_view(), name='post_create'),
+    path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post_update'),
+    path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post_delete'),
+    path('about/', views.about, name='about'),
 ]
