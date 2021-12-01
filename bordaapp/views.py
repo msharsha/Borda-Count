@@ -1,11 +1,12 @@
-from .models import Post
+from django.http.response import HttpResponse
+from .models import Post, Submission
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import PostForm
+from .forms import PostSubmitForm
 from django.views.generic import (
     CreateView,
     ListView,
@@ -14,7 +15,7 @@ from django.views.generic import (
     DeleteView
 )
 from django.utils import timezone
-
+from django import forms
 
 class PostListView(ListView):
     model = Post
@@ -53,14 +54,36 @@ class UserPostListView(ListView):
 
 
 def PostDetailView(request, pk):
-    user = get_object_or_404(User, username=request.user)
+    if request.user.is_anonymous:
+        return redirect('/')
     if request.method == "POST":
-        print('post method')
-        pass
+        form = PostSubmitForm(request.POST)
+        if form.is_valid():
+            # Registering the User
+            post = Post.objects.get(id=pk)
+            answered_users = post.answered_users
+            answered_users += ','+request.user.email
+            post.answered_users = answered_users
+            post.save()
+            
+            # Saving the Submission
+            submission = form.save(commit=False)
+            submission.post_id = Post.objects.get(id=pk)
+            submission.submitted_by = request.user
+            submission.submitted_date = timezone.now()
+            submission.save()
+            return redirect('/')
+        else:
+            return redirect('/')
     else:
-        template_name = 'borda/post_detail.html' 
         post = Post.objects.get(id=pk)
-        return render(request, template_name, {'post': post})
+        if request.user.email in post.answered_users:
+            return redirect('/')
+        form = PostSubmitForm(initial={'options': post.options})
+        form.fields['options'].widget = forms.HiddenInput()
+        template_name = 'borda/post_detail.html' 
+        
+        return render(request, template_name, {'post': post, 'form': form})
 
 
 # class PostCreateView(LoginRequiredMixin, CreateView):

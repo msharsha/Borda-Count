@@ -16,46 +16,33 @@
 
     <!-- Post information -->
     <div>
-        <h1 class="mt-4">{{post.content}}</h1>
+        <h1 class="mt-4">{{post.title}}</h1>
+        <h2>{{post.content}}</h2>
         <p>
             Posted on {{ post.date_posted|date:"F d, Y" }}
-            {% if post.author == user %}
-            <a class="btn btn-info btn-sm mt-1 mb-1 float-right" href="{% url 'post_update' post.id %}">Update</a>
-            <a class="btn btn-danger btn-sm mt-1 mb-1 float-right mr-2 "
-                href="{% url 'post_delete' post.id %}">Delete</a>
-            {% endif %}
         </p>
     </div>
     <hr>
-
-    <!-- Preview Image -->
-    <!-- <img class="img-fluid rounded" src="http://placehold.it/900x300" alt="">
-    <hr> -->
-
-    <!-- Post Content -->
-    <!-- <p class="lead">{{ post.content|safe|linebreaks }}</p>
-    <hr> -->
     
-    <!-- {{post.options}} -->
-    <!-- Poll Drag & Drop -->
+    <!-- Poll Options -->
     <div id="surveyElement" style="display:inline-block;width:100%;"></div>
     <div id="surveyResult"></div>
     <script type="text/javascript">
         Survey.StylesManager.applyTheme("bootstrap");
         Survey.defaultBootstrapCss.navigationButton = "btn btn-green";
-        var pollTitle = `{{post.title}}`
+        var pollTitle = ``
         var options = `{{post.options}}`;
         options = options.split(',')
         var json = {
+            "showQuestionNumbers": "off",
             "pages": [
                 {
                     "name": "page1",
                     "elements": [
                         {
                             "type": "ranking",
-                            "name": "Poll-features",
+                            "name": "",
                             "title": pollTitle,
-                            "isRequired": true,
                             "choices": options
                         }
                     ]
@@ -65,22 +52,18 @@
 
         window.survey = new Survey.Model(json);
         survey.onValueChanged.add(function (sender) {
-            let options = sender.data['Poll-features'] + ''
-            console.log(options,'options')
+            let options = sender.data['Poll-features'] + '';
+            console.log(options,'options');
+            document.getElementsByName('options')[0].innerHTML = options;
         });
         survey.showNavigationButtons = false;
-        survey.onComplete.add(function (sender) {
-                            document
-                                .querySelector('#surveyResult')
-                                .textContent = "Result JSON:\n" + JSON.stringify(sender.data, null, 3);
-                            });
-
         $("#surveyElement").Survey({model: survey});
     </script>
 
-    <!-- Like -->
-    <!-- {% if user.is_authenticated %}
-    {% endif %} -->
+    <form method="POST" class="post-form">{% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="save btn btn-default">Save</button>
+    </form>
 
 
 

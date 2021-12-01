@@ -9,15 +9,28 @@
         <article class="media content-section">
           <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
           <div class="media-body">
-            <div class="article-metadata">
+            <div class="d-flex justify-content-between article-metadata">
               <a class="mr-2" href="{% url 'user_posts' post.author.username %}">{{ post.author }}</a>
-              <small class="text-muted">Posted on {{ post.date_posted|date:"F d, Y" }} </small>
-              {% if post.deadline %}||
-              <small class="text-muted">Deadline: {{ post.deadline|date:"F d, Y" }}</small>
+              {% if request.user.email in post.answered_users %}
+              <button type="button" class="btn btn-outline-success btn-sm">Answered</button>
+              {% else %}
+              <button type="button" class="btn btn-outline-danger btn-sm">Not Answered</button>
               {% endif %}
             </div>
-          <h2><a class="article-title" href="{% url 'post_detail' post.pk %}">{{ post.title }}</a></h2>
+            <h2>
+              <a class="article-title" href="{% url 'post_detail' post.pk %}">{{ post.title }}</a>
+            </h2>
             <p class="article-content">{{ post.content|safe }}</p>
+            <div class="d-flex justify-content-between">
+              <a class="mr-2" href="">
+                Posted on {{ post.date_posted|date:"F d, Y" }}
+                {% if post.deadline %}
+              </a>
+              <a class="mr-2" href="">
+                Deadline: {{ post.deadline|date:"F d, Y" }}
+                {% endif %}
+              </a>
+            </div>
           </div>
         </article>
     {% endfor %}

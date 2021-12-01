@@ -1,6 +1,7 @@
 from django import forms
+from django.forms import widgets
 
-from .models import Post
+from .models import Post, Submission
 
 class DateInput(forms.DateInput):
     input_type = 'date'
@@ -14,3 +15,8 @@ class PostForm(forms.ModelForm):
             'content': forms.Textarea(attrs={'class': 'editable medium-editor-textarea'}),
             'deadline': DateInput()
         }
+
+class PostSubmitForm(forms.ModelForm):
+    class Meta:
+        model = Submission
+        fields = ['options']

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Post
+from .models import Post, Submission
 
 
 class PostAdmin(admin.ModelAdmin):
@@ -9,5 +9,11 @@ class PostAdmin(admin.ModelAdmin):
     search_fields = ('title', 'content', 'author')
     list_per_page = 20
 
+class SubmissionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'options', 'submitted_by','submitted_date')
+    list_filter = ['submitted_by','submitted_date']
+    search_fields = ['submitted_by']
+    list_per_page = 20
 
 admin.site.register(Post, PostAdmin)
+admin.site.register(Submission, SubmissionAdmin)
