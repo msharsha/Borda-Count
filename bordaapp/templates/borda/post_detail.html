@@ -8,7 +8,7 @@
     <div class="media">
         <img class="d-flex mr-3 rounded-circle article-img" src="{{ post.author.profile.image.url }}" alt="">
         <div class="media-body">
-            <h4 class="mt-0"><a href="{% url 'user_posts' post.author.username %}">{{ post.author }}</a></h4>
+            <h4 class="mt-0">Posted by {{ post.author }}</h4>
             <h6 class="mt-0">{{ post.author.email }}</h6>
         </div>
     </div>
