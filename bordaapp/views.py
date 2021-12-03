@@ -123,3 +123,14 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 def about(request):
     return render(request, 'borda/about.html', {'title': 'About'})
+
+def get_preference_schedule(pk):
+    '''Reads objects and returns candidates and preferences'''
+    post = Post.objects.get(id = pk)
+    submissions = Submission.objects.filter(post_id = pk)
+    
+    candidates = list(post.options.split(','))
+    prefs = []
+    for submission in submissions:
+        prefs.append(list(submission.options.split(',')))
+    return candidates, prefs
