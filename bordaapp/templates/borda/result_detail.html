@@ -1,0 +1,48 @@
+{% extends "borda/base.html" %}
+{% block content %}
+<article class="media content-section">
+    <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
+    <div class="media-body">
+      <div class="d-flex justify-content-between article-metadata">
+        <a class="mr-2" href="">{{ post.author }}</a>
+      </div>
+      <h2>
+        <a class="article-title">{{ post.title }}</a>
+      </h2>
+      <p class="article-content">{{ post.content|safe }}</p>
+      <div class="d-flex justify-content-between">
+        <h6 class="text-success">
+          Posted on {{ post.date_posted|date:"F d, Y" }}
+          {% if post.deadline %}
+        </h6>
+        <h6 class="text-danger">
+          Deadline: {{ post.deadline|date:"F d, Y" }}
+          {% endif %}
+        </h6>
+      </div>
+      <hr>
+      <div>
+        <h3>Results:</h3>
+        <div class="d-flex justify-content-between">
+          <h6>No. of Users Voted: {{num_users_answered}}</h6>
+          <h6>Total no. of Users: {{total_users}}</h6>
+        </div>
+        <br>
+        
+        {% for option, score in percents %}
+          <div class="progress">
+          {{option}} => 
+            <div class="progress-bar progress-bar-striped bg-info" role="progressbar" style="width: {{score}}%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+          => {{score}}%
+          </div>
+          <br>
+        {% endfor %}
+      </div>
+      <br><br>
+      <div class="d-flex justify-content-center">
+        <h3>The Borda Winner for this Poll is</h3>&nbsp &nbsp <u><h3 class="text-success"> {{winner}}</h3></u>
+      </div>
+      <br><br>
+    </div>
+  </article>
+{% endblock content %}
