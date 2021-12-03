@@ -10,7 +10,7 @@
           <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
           <div class="media-body">
             <div class="d-flex justify-content-between article-metadata">
-              <a class="mr-2" href="{% url 'user_posts' post.author.username %}">{{ post.author }}</a>
+              <p>Posted by {{ post.author }}</p>
               {% if request.user.email in post.answered_users %}
               <button type="button" class="btn btn-outline-success btn-sm">Answered</button>
               {% else %}
@@ -22,14 +22,14 @@
             </h2>
             <p class="article-content">{{ post.content|safe }}</p>
             <div class="d-flex justify-content-between">
-              <a class="mr-2" href="">
+              <h6 class="text-success">
                 Posted on {{ post.date_posted|date:"F d, Y" }}
                 {% if post.deadline %}
-              </a>
-              <a class="mr-2" href="">
+              </h6>
+              <h6 class="text-danger">
                 Deadline: {{ post.deadline|date:"F d, Y" }}
                 {% endif %}
-              </a>
+              </h6>
             </div>
           </div>
         </article>
@@ -37,7 +37,7 @@
     {% if not posts|length %}
         <article class="media content-section">
           {% if request.user.is_anonymous %}
-          <img class="rounded-circle article-img" src="">
+          <img class="rounded-circle article-img" src="https://icons.veryicon.com/png/o/miscellaneous/xdh-font-graphics-library/anonymous-user.png">
           <div class="media-body">
             <div class="article-metadata">
               <a class="mr-2" href="">Anonymous</a>
@@ -54,7 +54,11 @@
               <small class="text-muted">----- --,----</small>
             </div>
           <h2><a class="article-title" href="">No Polls</a></h2>
-            <p class="article-content">Create to see the polls</p>
+            {% if request.user.is_superuser %}
+              <p class="article-content">Create to see the polls</p>
+            {% else %}
+              <p class="article-content">Login to see the polls</p>
+            {% endif %}
           </div>
           {% endif %}
     </article>

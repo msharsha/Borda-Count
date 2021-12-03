@@ -6,13 +6,13 @@ from django.conf import settings
 
 class Post(models.Model):
     author = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default="admin")
     title = models.CharField(max_length=100)
     content = models.TextField()
     date_posted = models.DateTimeField(default=timezone.now)
     deadline = models.DateTimeField(null=True,blank=True)
     allowed_users = models.TextField(default='')
-    answered_users = models.TextField(default='')
+    answered_users = models.TextField(default='_')
     options = models.TextField(blank=False)
 
     class Meta:
