@@ -41,7 +41,7 @@
                     "elements": [
                         {
                             "type": "ranking",
-                            "name": "",
+                            "name": "Poll-features",
                             "title": pollTitle,
                             "choices": options
                         }
@@ -55,6 +55,7 @@
             let options = sender.data['Poll-features'] + '';
             console.log(options,'options');
             document.getElementsByName('options')[0].innerHTML = options;
+            document.getElementsByName('options')[0].value = options;
         });
         survey.showNavigationButtons = false;
         $("#surveyElement").Survey({model: survey});
