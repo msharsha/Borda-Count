@@ -1,24 +1,35 @@
 from django.db import models
-import datetime
 from django.utils import timezone
+from django.urls import reverse
+from django.conf import settings
 
 
-# Create your models here.
-class Question(models.Model):
-    question_text = models.CharField(max_length=200)
-    pub_date = models.DateTimeField('date published')
+class Post(models.Model):
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default="admin")
+    title = models.CharField(max_length=100)
+    content = models.TextField()
+    date_posted = models.DateTimeField(default=timezone.now)
+    deadline = models.DateTimeField(null=True,blank=True)
+    allowed_users = models.TextField(default='')
+    answered_users = models.TextField(default='_')
+    options = models.TextField(blank=False)
 
-    def _str_(self):
-        return self.question_text
+    class Meta:
+        ordering = ('-date_posted', )
 
-    def was_published_recently(self):
-        return self.pub_date >= timezone.now() - datetime.timedelta(days=1)
+    def __str__(self):
+        return self.title
+
+    def get_absolute_url(self):
+        return reverse('post_detail', kwargs={'pk': self.pk})
 
 
-class Choice(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    choice_text = models.CharField(max_length=200)
-    votes = models.IntegerField(default=0)
+class Submission(models.Model):
+    options = models.TextField(blank=False)
+    post_id = models.ForeignKey('bordaapp.Post', on_delete=models.CASCADE)
+    submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    submitted_date = models.DateTimeField(default=timezone.now)
 
-    def _str_(self):
-        return self.choice_text
+    def __str__(self):
+        return self.options

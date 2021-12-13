@@ -1,0 +1,85 @@
+{% extends "borda/base.html" %}
+{% block content %}
+<!-- Search Form -->
+<form class="form-inline my-2 my-lg-0 pb-2">
+    <input class="form-control mr-sm-2" name="q" type="search" placeholder="Search" aria-label="Search" style="width: 400px">
+    <input class="btn btn-outline-success my-2 my-sm-0" type="submit" value="Search">
+</form> 
+    {% for post in posts %}
+        <article class="media content-section">
+          <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
+          <div class="media-body">
+            <div class="d-flex justify-content-between article-metadata">
+              <p>Posted by {{ post.author }}</p>
+              {% if request.user.email in post.answered_users %}
+              <button type="button" class="btn btn-outline-success btn-sm">Answered</button>
+              {% else %}
+              <button type="button" class="btn btn-outline-danger btn-sm">Not Answered</button>
+              {% endif %}
+            </div>
+            <h2>
+              <a class="article-title" href="{% url 'post_detail' post.pk %}">{{ post.title }}</a>
+            </h2>
+            <p class="article-content">{{ post.content|safe }}</p>
+            <div class="d-flex justify-content-between">
+              <h6 class="text-success">
+                Posted on {{ post.date_posted|date:"F d, Y" }}
+                {% if post.deadline %}
+              </h6>
+              <h6 class="text-danger">
+                Deadline: {{ post.deadline|date:"F d, Y" }}
+                {% endif %}
+              </h6>
+            </div>
+          </div>
+        </article>
+    {% endfor %}
+    {% if not posts|length %}
+        <article class="media content-section">
+          {% if request.user.is_anonymous %}
+          <img class="rounded-circle article-img" src="https://icons.veryicon.com/png/o/miscellaneous/xdh-font-graphics-library/anonymous-user.png">
+          <div class="media-body">
+            <div class="article-metadata">
+              <a class="mr-2" href="">Anonymous</a>
+              <small class="text-muted">----- --,----</small>
+            </div>
+          <h2><a class="article-title" href="">No Polls</a></h2>
+            <p class="article-content">Login / Register to see the polls</p>
+          </div>
+          {% else %}
+          <img class="rounded-circle article-img" src="{{ request.user.profile.image.url }}">
+          <div class="media-body">
+            <div class="article-metadata">
+              <a class="mr-2" href="">{{request.user.username}}</a>
+              <small class="text-muted">----- --,----</small>
+            </div>
+          <h2><a class="article-title" href="">No Polls</a></h2>
+            {% if request.user.is_superuser %}
+              <p class="article-content">Create to see the polls</p>
+            {% else %}
+              <p class="article-content">Login to see the polls</p>
+            {% endif %}
+          </div>
+          {% endif %}
+    </article>
+    {% endif %}
+    {% if is_paginated %}
+      {% if page_obj.has_previous %}
+        <a class="btn btn-outline-info mb-4" href="?page=1">First</a>
+        <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+      {% endif %}
+
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+          <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+        <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
+        <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+      {% endif %}
+    {% endif %}
+{% endblock content %}

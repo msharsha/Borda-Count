@@ -1,0 +1,30 @@
+{% extends "borda/base.html" %}
+{% block content %}
+<article class="media content-section">
+    <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
+    <div class="media-body">
+      <div class="d-flex justify-content-between article-metadata">
+        <a class="mr-2" href="">{{ post.author }}</a>
+      </div>
+      <h2>
+        <a class="article-title">{{ post.title }}</a>
+      </h2>
+      <p class="article-content">{{ post.content|safe }}</p>
+      <div class="d-flex justify-content-between">
+        <h6>
+          Posted on {{ post.date_posted|date:"F d, Y" }}
+          {% if post.deadline %}
+        </h6>
+        <h6>
+          Deadline is {{ post.deadline|date:"F d, Y" }}
+          {% endif %}
+        </h6>
+      </div>
+      <hr>
+      <div>
+        <h3>Results:</h3>
+        <h6>No submissions yet, please check back later!</h6>
+    </div>
+    </div>
+  </article>
+{% endblock content %}
