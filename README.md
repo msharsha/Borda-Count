@@ -30,5 +30,6 @@ To run the server:
 > python manage.py runserver
 Visit http://127.0.0.1:8000/ to see the Application running.
 
-## Code Structure
+## Deployment
+The application is deployed at https://bordacount.herokuapp.com/
 
