@@ -131,3 +131,7 @@ dmypy.json
 # virtual environment
 myvenv/*documentation/Fall2021/.
 documentation/Spring2022/*.doc*
+documentation/Fall2021/*
+.vscode
+myenv
+myenv/*
