@@ -194,7 +194,7 @@ class Aggregator():
         max_point = len(candidates)
         for pref in self.pref_schedule.prefs:
             for i in range(len(pref)):
-                counts[pref[i]] += max_point - i
+                counts[pref[i]] += pref[i]
 
         print('Borda scores:', counts)
         print('The winner(s) is(are)', find_winner(counts))
