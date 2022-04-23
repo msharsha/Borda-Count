@@ -17,6 +17,7 @@ from django.views.generic import (
 from django.utils import timezone
 from django import forms
 
+
 class PostListView(ListView):
     model = Post
     template_name = 'borda/index.html'
@@ -59,7 +60,7 @@ def PostDetailView(request, pk):
             submission = form.save(commit=False)
             submission.post_id = Post.objects.get(id=pk)
             submission.submitted_by = request.user
-            submission.submitted_date = timezone.now()
+            submission.submitted_date = timezone.now() 
             submission.save()
             return redirect('/')
         else:
@@ -124,34 +125,43 @@ def ResultDetailView(request, pk):
         return render(request, template_name,{'post': post})
     template_name = 'borda/result_detail.html'
     aggr = Aggregator(pk)
-    scores, winner = aggr.borda()
+    scores, winners = aggr.borda()
     total_score = sum(scores.values())
     percents = {}
-    for score in scores:
-        percents[score] = int((scores[score]/total_score)*100)
+    for candidate,score in scores.items():
+        percents[candidate] = round((score/total_score)*100)
     num_users_answered = len(post.answered_users.split(',')) - 1
     total_users = len(post.allowed_users.split(','))
-    return render(request, template_name, {'post': post, 'scores': scores.items(), 'winner': winner[0], 'total_score': total_score, 'percents': percents.items(), 'num_users_answered': num_users_answered, 'total_users': total_users })
+    return render(request, template_name, {'post': post, 'scores': scores.items(), 'winner': winners[0], 'total_score': total_score, 'percents': percents.items(), 'num_users_answered': num_users_answered, 'total_users': total_users })
 
 class PreferenceSchedule():
 
     def __init__(self, candidates, prefs):
+        self.candidates = candidates
         self.prefs = prefs
+        self.detailed_prefs = self.getDetiledPrefs()
+
+    def getDetiledPrefs(self):
+        detailed_prefs = []
+        for pref in self.prefs:
+            sorted_pref = [k for k, v in sorted(pref.items(), key=lambda item: -item[1])]
+            detailed_prefs.append(sorted_pref)
+        return detailed_prefs
 
     def original(self):
         '''Returns the original preference schedule as a printable string'''
 
         res = ''
-        for i in range(len(self.prefs)):
-            res += 'Voter {}: '.format(i+1) + ', '.join(self.prefs[i]) + '\n'
+        for i in range(len(self.detailed_prefs)):
+            res += 'Voter {}: '.format(i+1) + ', '.join(self.detailed_prefs[i]) + '\n'
 
         return res[:-1]
 
     def detailed(self):
         '''Returns the detailed preference schedule as a printable string'''
         # count the number of occurences of each preference
-        prefs = self.prefs[:]
-        prefs = [tuple(p) for p in self.prefs]
+        prefs = self.detailed_prefs[:]
+        prefs = [tuple(p) for p in self.detailed_prefs]
         counts = {}
         while prefs:
             pref = prefs.pop(0)
@@ -172,7 +182,6 @@ class Aggregator():
 
     def __init__(self, pk):
         candidates, prefs = get_preference_schedule(pk)
-        self.candidates = candidates
         self.pref_schedule = PreferenceSchedule(candidates, prefs)
 
     def __str__(self):
@@ -185,37 +194,35 @@ class Aggregator():
         return res
 
     def borda(self):
-        '''Prints who wins by the Borda count'''
-        counts = {}
-        candidates = list(self.pref_schedule.prefs[0])
+        '''Finds who wins by the Cumulative Borda count'''
+        scores = {}
+        candidates = list(self.pref_schedule.candidates)
         for candidate in candidates:
-            counts[candidate] = 0
+            scores[candidate] = 0
+                
+        # [
+        #     {"A":3,"B":0,"C":5},
+        #     {"A":4,"B":1,"C":0},
+        #     {"A":7,"B":8,"C":2}
+        # ]
 
-        max_point = len(candidates)
         for pref in self.pref_schedule.prefs:
-            for i in range(len(pref)):
-                counts[pref[i]] += pref[i]
-
-        print('Borda scores:', counts)
-        print('The winner(s) is(are)', find_winner(counts))
-        scores = counts
-        winner = find_winner(counts)
+            for (key,value) in pref.items():
+                scores[key] += value
+        winner = self.find_winner(scores)
         return scores, winner
 
-
-def find_winner(aggregated_result):
-    max_point = 0
-    for point in aggregated_result.values():
-        if point > max_point:
-            max_point = point
-
-    winner = []  # winner can be many, so use a list here
-    for candidate in aggregated_result.keys():
-        if aggregated_result[candidate] == max_point:
-            winner.append(candidate)
-
-    return winner
-
+    def find_winner(self, aggregated_result):
+        max_point = 0
+        winners = [] # winner can be many, so use a list here
+        for (candidate,point) in aggregated_result.items():
+            if point > max_point:
+                max_point = point
+                winners.clear()
+                winners.append(candidate)
+            elif point == max_point:
+                winners.append(candidate)
+        return winners
 
 def get_preference_schedule(pk):
     '''Reads objects and returns candidates and preferences'''
@@ -225,5 +232,6 @@ def get_preference_schedule(pk):
     candidates = list(post.options.split(','))
     prefs = []
     for submission in submissions:
-        prefs.append(list(submission.options.split(',')))
+        pref = submission.preferenceMap()
+        prefs.append(pref)
     return candidates, prefs

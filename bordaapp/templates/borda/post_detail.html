@@ -98,11 +98,7 @@
         survey.onValueChanged.add(function (sender) {
             console.log("ABCDEF")
             postsubmission = JSON.parse(JSON.stringify(sender.data['postsubmission']))
-            // let preferences={}
-            // for(key of Object.keys(postsubmission)){
-            //     preferences[key]=postsubmission[key].points
-            // }
-
+            
             let preferences=[]
             for (idx of options) {
                 if(postsubmission[idx.value])
@@ -110,7 +106,6 @@
                 else
                     preferences.push(0)
             }
-            // preferences = JSON.stringify(preferences);
             preferences = preferences + ''
             document.getElementsByName('preferences')[0].innerHTML = preferences;
             document.getElementsByName('preferences')[0].value = preferences;

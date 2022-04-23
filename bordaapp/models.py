@@ -34,3 +34,11 @@ class Submission(models.Model):
 
     def __str__(self):
         return self.options
+
+    def preferenceMap(self):
+        options = self.options.split(',');
+        preferences = self.preferences.split(',');
+        prefs = {}
+        for idx, option in enumerate(options):
+            prefs[option] = int(preferences[idx])
+        return prefs
