@@ -97,12 +97,21 @@
         window.survey = new Survey.Model(json);
         survey.onValueChanged.add(function (sender) {
             console.log("ABCDEF")
-            postsubmission = sender.data['postsubmission']
-            let preferences={}
-            for(key of Object.keys(postsubmission)){
-                preferences[key]=postsubmission[key].points
+            postsubmission = JSON.parse(JSON.stringify(sender.data['postsubmission']))
+            // let preferences={}
+            // for(key of Object.keys(postsubmission)){
+            //     preferences[key]=postsubmission[key].points
+            // }
+
+            let preferences=[]
+            for (idx of options) {
+                if(postsubmission[idx.value])
+                    preferences.push(postsubmission[idx.value].points)
+                else
+                    preferences.push(0)
             }
-            preferences = JSON.stringify(preferences);
+            // preferences = JSON.stringify(preferences);
+            preferences = preferences + ''
             document.getElementsByName('preferences')[0].innerHTML = preferences;
             document.getElementsByName('preferences')[0].value = preferences;
         });
