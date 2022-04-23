@@ -70,8 +70,8 @@ def PostDetailView(request, pk):
             return redirect('/')
         form = PostSubmitForm(initial={'options': post.options})
         form.fields['options'].widget = forms.HiddenInput()
+        form.fields['preferences'].widget = forms.HiddenInput()
         template_name = 'borda/post_detail.html' 
-        
         return render(request, template_name, {'post': post, 'form': form})
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):

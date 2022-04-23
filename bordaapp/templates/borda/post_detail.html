@@ -30,35 +30,85 @@
     <script type="text/javascript">
         Survey.StylesManager.applyTheme("bootstrap");
         Survey.defaultBootstrapCss.navigationButton = "btn btn-green";
-        var pollTitle = ``
+
+        function generate_rows(options) {
+            options = options.split(',') //trim options_list
+            option_rows=[]
+            for (opt in options) {
+                row = {
+                    "text" : options[opt],
+                    "value" : options[opt]
+                }
+                option_rows.push(row)
+            }
+            return option_rows
+        }
+
+        var pollTitle = `Please tell us your prefered timing`
         var options = `{{post.options}}`;
-        options = options.split(',')
+        var options = generate_rows(options)
+
+        // function surveyValidateQuestion(sender, options) {
+        //     console.log("XYZABC");
+        //     var total_points = sender.data['postsubmission-total'].points
+        //     if (options.name == 'postsubmission-total') {
+        //     //     var leastamount = options.value['leastamount'];
+        //     //     var mostamount = options.value['mostamount'];
+        //         if (total_points > 1) {
+        //             options.error = "Incorrect";
+        //             options.text= 'Text Incorrect';
+        //         }
+        //     }
+        // }
+
         var json = {
-            "showQuestionNumbers": "off",
-            "pages": [
+            showQuestionNumbers: "off",
+            elements: [
                 {
-                    "name": "page1",
-                    "elements": [
+                type: "matrixdropdown",
+                name: "postsubmission",
+                title: pollTitle,
+                horizontalScroll: true,
+                // columnMinWidth: "50%",
+                columnMaxWidth: "50%",
+                columns: [
+                    {
+                    name: "points",
+                    title: "Preference Points",
+                    isRequired: true,
+                    cellType: "text",
+                    inputType: "number",
+                    totalType: "sum",
+                    totalFormat: "Total Points: {0}",
+                    validators: [
                         {
-                            "type": "ranking",
-                            "name": "Poll-features",
-                            "title": pollTitle,
-                            "choices": options
+                        type: "numeric",
+                        minValue: 0,
+                        maxValue: 3
                         }
                     ]
+                    }
+                ],
+                rows: options
                 }
             ]
         };
 
         window.survey = new Survey.Model(json);
         survey.onValueChanged.add(function (sender) {
-            let options = sender.data['Poll-features'] + '';
-            console.log(options,'options');
-            document.getElementsByName('options')[0].innerHTML = options;
-            document.getElementsByName('options')[0].value = options;
+            console.log("ABCDEF")
+            postsubmission = sender.data['postsubmission']
+            let preferences={}
+            for(key of Object.keys(postsubmission)){
+                preferences[key]=postsubmission[key].points
+            }
+            preferences = JSON.stringify(preferences);
+            document.getElementsByName('preferences')[0].innerHTML = preferences;
+            document.getElementsByName('preferences')[0].value = preferences;
         });
         survey.showNavigationButtons = false;
         $("#surveyElement").Survey({model: survey});
+        // , onValidateQuestion: surveyValidateQuestion 
     </script>
 
     <form method="POST" class="post-form">{% csrf_token %}
