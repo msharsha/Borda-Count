@@ -48,7 +48,7 @@
         var options = `{{post.options}}`;
         var options = generate_rows(options)
 
-        function surveyValidateQuestion() {
+        function validateSurvey() {
             errors = []
             preferences = document.getElementsByName("preferences")[0]
             
@@ -140,7 +140,7 @@
         $("#surveyElement").Survey({model: survey});
     </script>
 
-    <form method="POST" class="post-form" onsubmit="javascript:return surveyValidateQuestion()">
+    <form method="POST" class="post-form" onsubmit="javascript:return validateSurvey()">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" 
