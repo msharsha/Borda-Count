@@ -1,3 +1,4 @@
+from ssl import Options
 from django.db import models
 from django.utils import timezone
 from django.urls import reverse
@@ -24,12 +25,20 @@ class Post(models.Model):
     def get_absolute_url(self):
         return reverse('post_detail', kwargs={'pk': self.pk})
 
-
 class Submission(models.Model):
     options = models.TextField(blank=False)
+    preferences = models.TextField(blank=True)
     post_id = models.ForeignKey('bordaapp.Post', on_delete=models.CASCADE)
     submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     submitted_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.options
+
+    def preferenceMap(self):
+        options = self.options.split(',');
+        preferences = self.preferences.split(',');
+        prefs = {}
+        for idx, option in enumerate(options):
+            prefs[option] = int(preferences[idx])
+        return prefs
