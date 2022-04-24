@@ -48,18 +48,45 @@
         var options = `{{post.options}}`;
         var options = generate_rows(options)
 
-        // function surveyValidateQuestion(sender, options) {
-        //     console.log("XYZABC");
-        //     var total_points = sender.data['postsubmission-total'].points
-        //     if (options.name == 'postsubmission-total') {
-        //     //     var leastamount = options.value['leastamount'];
-        //     //     var mostamount = options.value['mostamount'];
-        //         if (total_points > 1) {
-        //             options.error = "Incorrect";
-        //             options.text= 'Text Incorrect';
-        //         }
-        //     }
-        // }
+        function surveyValidateQuestion() {
+            errors = []
+            preferences = document.getElementsByName("preferences")[0]
+            
+            if(preferences && preferences.value && (preferences.value+'').length > 0 ){
+                preferences = preferences.value
+                preferences = (preferences+'').split(',')
+
+                total = 0
+
+                for (pref of preferences) {
+                    val = parseInt(pref)
+                    total += val
+
+                    if (errors.length==0 && (val<0 || val>options.length)){
+                        errors.push("Each option should have points between 0 and " + options.length + "(inclusive).")
+                    }
+                }
+
+                if(total > options.length){
+                    errors.push("Maximum points allowed: " + options.length + " ; Current points: " + total)
+                }
+
+                if(errors.length==0 && total == 0){
+                    errors.push("Assign points to atleast 1 option.")
+                }
+
+            } else {
+                errors.push("Assign points to atleast 1 option.")
+            }
+            
+
+            if(errors.length > 0){
+                alert(errors.join("\n"));
+                return false;
+            }
+
+            return true;
+        }
 
         var json = {
             showQuestionNumbers: "off",
@@ -82,9 +109,9 @@
                     totalFormat: "Total Points: {0}",
                     validators: [
                         {
-                        type: "numeric",
-                        minValue: 0,
-                        maxValue: 3
+                            type: "numeric",
+                            minValue: 0,
+                            maxValue: options.length,
                         }
                     ]
                     }
@@ -96,9 +123,8 @@
 
         window.survey = new Survey.Model(json);
         survey.onValueChanged.add(function (sender) {
-            console.log("ABCDEF")
             postsubmission = JSON.parse(JSON.stringify(sender.data['postsubmission']))
-            
+
             let preferences=[]
             for (idx of options) {
                 if(postsubmission[idx.value])
@@ -112,15 +138,17 @@
         });
         survey.showNavigationButtons = false;
         $("#surveyElement").Survey({model: survey});
-        // , onValidateQuestion: surveyValidateQuestion 
     </script>
 
-    <form method="POST" class="post-form">{% csrf_token %}
+    <form method="POST" class="post-form" onsubmit="javascript:return surveyValidateQuestion()">
+        {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit" class="save btn btn-default">Save</button>
+        <button type="submit" 
+            id="save-button"
+            class="save btn btn-default">
+            Save
+        </button>
     </form>
-
-
 
 </div>
 {% endblock content %}

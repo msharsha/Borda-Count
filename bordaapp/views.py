@@ -46,17 +46,18 @@ class PostListView(ListView):
 def PostDetailView(request, pk):
     if request.user.is_anonymous:
         return redirect('/')
+
+    template_name = 'borda/post_detail.html'
     if request.method == "POST":
         form = PostSubmitForm(request.POST)
         if form.is_valid():
-            # Registering the User
+            
             post = Post.objects.get(id=pk)
             answered_users = post.answered_users
             answered_users += ','+request.user.email
             post.answered_users = answered_users
             post.save()
-            
-            # Saving the Submission
+
             submission = form.save(commit=False)
             submission.post_id = Post.objects.get(id=pk)
             submission.submitted_by = request.user
@@ -71,8 +72,7 @@ def PostDetailView(request, pk):
             return redirect('/')
         form = PostSubmitForm(initial={'options': post.options})
         form.fields['options'].widget = forms.HiddenInput()
-        form.fields['preferences'].widget = forms.HiddenInput()
-        template_name = 'borda/post_detail.html' 
+        form.fields['preferences'].widget = forms.HiddenInput() 
         return render(request, template_name, {'post': post, 'form': form})
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -199,12 +199,6 @@ class Aggregator():
         candidates = list(self.pref_schedule.candidates)
         for candidate in candidates:
             scores[candidate] = 0
-                
-        # [
-        #     {"A":3,"B":0,"C":5},
-        #     {"A":4,"B":1,"C":0},
-        #     {"A":7,"B":8,"C":2}
-        # ]
 
         for pref in self.pref_schedule.prefs:
             for (key,value) in pref.items():
