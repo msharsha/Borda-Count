@@ -19,4 +19,4 @@ class PostForm(forms.ModelForm):
 class PostSubmitForm(forms.ModelForm):
     class Meta:
         model = Submission
-        fields = ['options']
+        fields = ['options','preferences']
