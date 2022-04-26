@@ -30,43 +30,125 @@
     <script type="text/javascript">
         Survey.StylesManager.applyTheme("bootstrap");
         Survey.defaultBootstrapCss.navigationButton = "btn btn-green";
-        var pollTitle = ``
+
+        function generate_rows(options) {
+            options = options.split(',') //trim options_list
+            option_rows=[]
+            for (opt in options) {
+                row = {
+                    "text" : options[opt],
+                    "value" : options[opt]
+                }
+                option_rows.push(row)
+            }
+            return option_rows
+        }
+
+        var pollTitle = `Please tell us your prefered timing`
         var options = `{{post.options}}`;
-        options = options.split(',')
+        var options = generate_rows(options)
+
+        function validateSurvey() {
+            errors = []
+            preferences = document.getElementsByName("preferences")[0]
+            
+            if(preferences && preferences.value && (preferences.value+'').length > 0 ){
+                preferences = preferences.value
+                preferences = (preferences+'').split(',')
+
+                total = 0
+
+                for (pref of preferences) {
+                    val = parseInt(pref)
+                    total += val
+
+                    if (errors.length==0 && (val<0 || val>options.length)){
+                        errors.push("Each option should have points between 0 and " + options.length + "(inclusive).")
+                    }
+                }
+
+                if(total > options.length){
+                    errors.push("Maximum points allowed: " + options.length + " ; Current points: " + total)
+                }
+
+                if(errors.length==0 && total == 0){
+                    errors.push("Assign points to atleast 1 option.")
+                }
+
+            } else {
+                errors.push("Assign points to atleast 1 option.")
+            }
+            
+
+            if(errors.length > 0){
+                alert(errors.join("\n"));
+                return false;
+            }
+
+            return true;
+        }
+
         var json = {
-            "showQuestionNumbers": "off",
-            "pages": [
+            showQuestionNumbers: "off",
+            elements: [
                 {
-                    "name": "page1",
-                    "elements": [
+                type: "matrixdropdown",
+                name: "postsubmission",
+                title: pollTitle,
+                horizontalScroll: true,
+                // columnMinWidth: "50%",
+                columnMaxWidth: "50%",
+                columns: [
+                    {
+                    name: "points",
+                    title: "Preference Points",
+                    isRequired: true,
+                    cellType: "text",
+                    inputType: "number",
+                    totalType: "sum",
+                    totalFormat: "Total Points: {0}",
+                    validators: [
                         {
-                            "type": "ranking",
-                            "name": "Poll-features",
-                            "title": pollTitle,
-                            "choices": options
+                            type: "numeric",
+                            minValue: 0,
+                            maxValue: options.length,
                         }
                     ]
+                    }
+                ],
+                rows: options
                 }
             ]
         };
 
         window.survey = new Survey.Model(json);
         survey.onValueChanged.add(function (sender) {
-            let options = sender.data['Poll-features'] + '';
-            console.log(options,'options');
-            document.getElementsByName('options')[0].innerHTML = options;
-            document.getElementsByName('options')[0].value = options;
+            postsubmission = JSON.parse(JSON.stringify(sender.data['postsubmission']))
+
+            let preferences=[]
+            for (idx of options) {
+                if(postsubmission[idx.value])
+                    preferences.push(postsubmission[idx.value].points)
+                else
+                    preferences.push(0)
+            }
+            preferences = preferences + ''
+            document.getElementsByName('preferences')[0].innerHTML = preferences;
+            document.getElementsByName('preferences')[0].value = preferences;
         });
         survey.showNavigationButtons = false;
         $("#surveyElement").Survey({model: survey});
     </script>
 
-    <form method="POST" class="post-form">{% csrf_token %}
+    <form method="POST" class="post-form" onsubmit="javascript:return validateSurvey()">
+        {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit" class="save btn btn-default">Save</button>
+        <button type="submit" 
+            id="save-button"
+            class="save btn btn-default">
+            Save
+        </button>
     </form>
-
-
 
 </div>
 {% endblock content %}

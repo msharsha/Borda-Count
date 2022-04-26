@@ -11,7 +11,7 @@ class PostAdmin(admin.ModelAdmin):
     list_per_page = 20
 
 class SubmissionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'post_id', 'options', 'submitted_by','submitted_date')
+    list_display = ('id', 'post_id', 'options', 'preferences', 'submitted_by','submitted_date')
     list_filter = ['submitted_by', 'post_id', 'submitted_date']
     search_fields = ['submitted_by']
     list_per_page = 20
