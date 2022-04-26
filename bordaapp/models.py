@@ -27,7 +27,7 @@ class Post(models.Model):
 
 class Submission(models.Model):
     options = models.TextField(blank=False)
-    preferences = models.TextField(blank=True)
+    preferences = models.TextField(blank=True, default="")
     post_id = models.ForeignKey('bordaapp.Post', on_delete=models.CASCADE)
     submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     submitted_date = models.DateTimeField(default=timezone.now)
