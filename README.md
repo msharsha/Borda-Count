@@ -37,6 +37,7 @@ We maintained a different branch for each iteration and tagged them with the nam
 
 Project Demo Video:
 
-https://vimeo.com/656439233
+Fall 2021: https://vimeo.com/656439233
+Spring 2022: https://youtu.be/W21kQuD2QHs
 
 
